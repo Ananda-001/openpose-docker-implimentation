@@ -104,7 +104,7 @@ Optional: Include hands and/or face if models are available by adding --hand and
 
 The JSON contains the 25 body keypoints with coordinates and confidence (and hands/face if enabled), which is commonly used by downstream pipelines like VITON‑HD. 
 
-## Quickstart C: REST API (Optional)
+## Quickstart C: REST API (W.I.P.)
 
 If the API image is built, start the service and POST images to get JSON keypoints and a base64 PNG of the rendered pose overlay.      
 
