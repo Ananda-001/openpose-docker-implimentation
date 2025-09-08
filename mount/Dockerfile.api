@@ -1,0 +1,46 @@
+# # Dockerfile.api
+# FROM pose-openpose:latest
+# RUN pip install --no-cache-dir fastapi uvicorn[standard] opencv-python-headless
+# RUN pip install python-multipart
+# WORKDIR /openpose
+# COPY openpose_api.py /openpose/app/full_api.py
+# ENV PYTHONPATH=/openpose/build/python \
+#     LD_LIBRARY_PATH=/openpose/build/lib
+
+# EXPOSE 8080
+# CMD ["uvicorn", "app.full_api:app", "--host", "0.0.0.0", "--port", "8080"]
+# Dockerfile.slim
+FROM pose-openpose:latest   
+
+# ---- Python deps ----
+RUN pip install --no-cache-dir fastapi uvicorn[standard] python-multipart \
+    opencv-python-headless pillow
+RUN cd /openpose/build \
+   cmake .. \
+  -DBUILD_PYTHON=ON \
+  -DPYTHON_EXECUTABLE=/usr/bin/python3 \
+  -DBUILD_PYTHON_STL=ON \
+  -DBUILD_SHARED_LIBS=ON \
+   make -j"$(nproc)" && \
+    make install
+RUN pip install slugify 
+
+# ---- App code ----
+WORKDIR /app
+#COPY openpose_api.py main.py 
+
+# ---- Remove unused models at start-up, depending on process type ----
+# We keep everything for build-time; size trimming happens in ENTRYPOINT.
+ENV OPENPOSE_DIR=/openpose
+ENV HAND_PROTO=${OPENPOSE_DIR}/models/hand/pose_deploy.prototxt
+ENV HAND_WEIGHTS=${OPENPOSE_DIR}/models/hand/pose_iter_102000.caffemodel
+ENV BODY_PROTO=${OPENPOSE_DIR}/models/pose/body_25/pose_deploy.prototxt
+ENV BODY_WEIGHTS=${OPENPOSE_DIR}/models/pose/body_25/pose_iter_584000.caffemodel
+
+ENV PYTHONPATH=${OPENPOSE_DIR}/build/python
+ENV LD_LIBRARY_PATH=${OPENPOSE_DIR}/build/lib
+
+# ---- Start both sub-apps with different model sets ----
+
+COPY /image /image_path
+CMD ["bash"]

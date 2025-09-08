@@ -1,0 +1,17 @@
+version: "3.9"
+services:
+
+  openpose-api:
+    container_name: updated-openpose
+    image: pose-openpose:latest
+    runtime: nvidia
+    ports:
+      - "5000:5000"
+    #working_dir: /app
+    #volumes:
+    #  - ./openpose_api.py:/app/openpose_api.py        # Mount your local script
+    
+    #command: ["python3", "openpose_api.py"]
+    environment:
+      - NVIDIA_VISIBLE_DEVICES=all
+      - NVIDIA_DRIVER_CAPABILITIES=all
