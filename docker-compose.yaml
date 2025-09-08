@@ -1,0 +1,18 @@
+version: "3.9"
+services:
+  openpose:
+    build: .               # Build from Dockerfile in current directory
+    runtime: nvidia
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - capabilities: [gpu]
+    environment:
+      - NVIDIA_VISIBLE_DEVICES=all
+      - NVIDIA_DRIVER_CAPABILITIES=all
+    working_dir: /openpose
+    entrypoint: /bin/bash
+    # volumes:
+    #   - ./data:/mnt/data      # Optional: enable if you want to map host data
+
